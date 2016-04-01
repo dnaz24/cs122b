@@ -62,7 +62,23 @@ public class JDBC
 	}
 
 	public static void print_metadata() {
-		System.out.println("print metadata");
+		
+		ResultSet rs = connection.getMetaData().getTables(null, null, "%", null); 
+		while (rs.next()){
+			
+			System.out.println("Table: " + rs.getString(3));
+	        Statement select = connection.createStatement();
+	        ResultSet result = select.executeQuery("Select * from " + rs.getString(3));
+	        ResultSetMetaData metadata = result.getMetaData();
+	        for (int i = 1; i <= metadata.getColumnCount(); i++)
+	        		System.out.println("Type of column "+ i + " is " + metadata.getColumnTypeName(i));
+	        System.out.println();
+	        
+	        select.close();
+	        result.close(); 
+			
+		}
+			
 	}
 
 	public static void sql_command() {
