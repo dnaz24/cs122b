@@ -47,10 +47,28 @@ public class JDBC
 			
 		}
 		
+		select.close(); 
+		result.close();
+		
 	}
 
-	public static void insert_star() {
+	public static void insert_star(Connection connection, String Query) throws Exception {
 
+		ArrayList<String> parsedQuery = parseQuery(Query); 
+		
+		Statement select = connection.createStatement();
+		ResultSet result; 
+		
+		if (parsedQuery.size() == 4)
+			result = select.executeQuery("INSERT INTO stars VALUES(" + parsedQuery.get(0) + ", \"" + "" + "\", \"" + parsedQuery.get(1) + "\", " + parsedQuery.get(2) + ", \"" + parsedQuery.get(3) + "\")"); 
+		else if (parsedQuery.size() == 5)
+			result = select.executeQuery("INSERT INTO stars VALUES(" + parsedQuery.get(0) + ", \"" + parsedQuery.get(1) + "\", \"" + parsedQuery.get(2) + "\", " + parsedQuery.get(3) + ", \"" + parsedQuery.get(4) + "\")");
+		else
+			return; 
+		
+		select.close(); 
+		result.close();
+		
 	}
 
 	public static void insert_customer() {
@@ -61,7 +79,7 @@ public class JDBC
 
 	}
 
-	public static void print_metadata() {
+	public static void print_metadata(Connection connection) throws SQLException {
 		
 		ResultSet rs = connection.getMetaData().getTables(null, null, "%", null); 
 		while (rs.next()){
@@ -71,14 +89,14 @@ public class JDBC
 	        ResultSet result = select.executeQuery("Select * from " + rs.getString(3));
 	        ResultSetMetaData metadata = result.getMetaData();
 	        for (int i = 1; i <= metadata.getColumnCount(); i++)
-	        		System.out.println("Type of column "+ i + " is " + metadata.getColumnTypeName(i));
+	        	System.out.println("Type of column "+ i + " is " + metadata.getColumnTypeName(i));
 	        System.out.println();
 	        
 	        select.close();
 	        result.close(); 
 			
 		}
-			
+		
 	}
 
 	public static void sql_command() {
@@ -97,9 +115,9 @@ public class JDBC
 
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-		Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "calmdude6994");
+		Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "user", "password");
 		
-		print(connection, "james caan"); 
+		print_metadata(connection); 
 
 	}
 }
