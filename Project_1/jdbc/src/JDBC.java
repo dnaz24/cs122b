@@ -89,7 +89,7 @@ public class JDBC
 	        ResultSet result = select.executeQuery("Select * from " + rs.getString(3));
 	        ResultSetMetaData metadata = result.getMetaData();
 	        for (int i = 1; i <= metadata.getColumnCount(); i++)
-	        	System.out.println("Type of column "+ i + " is " + metadata.getColumnTypeName(i));
+	        	System.out.println("Type of column "+ metadata.getColumnName(i) + ": " + metadata.getColumnTypeName(i));
 	        System.out.println();
 	        
 	        select.close();
@@ -115,7 +115,7 @@ public class JDBC
 
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-		Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "user", "password");
+		Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "password");
 		
 		print_metadata(connection); 
 
