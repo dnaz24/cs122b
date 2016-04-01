@@ -15,9 +15,9 @@ INSERT INTO stars VALUES(1, "2", "3", 4, "5");
 
 # Part 2 Problem 3
 INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password)
-SELECT 1, "2", "3", "671301", "5", "6", "7"
+SELECT 1, "2", "3", "4", "5", "6", "7"
 FROM dual
-WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = "671301");
+WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = "4");
 
 # Part 2 Problem 4
 DELETE FROM customers
