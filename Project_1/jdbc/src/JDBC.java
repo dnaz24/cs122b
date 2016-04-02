@@ -134,6 +134,9 @@ public class JDBC
 				statement.executeUpdate(query);
 				System.out.println("\nSuccessfully deleted from database table");				
 			}
+			else{
+				System.out.println("You have an error in your SQL syntax");
+			}
 		} 
 		catch(Exception e){
 			System.out.println("You have an error in your SQL syntax");
@@ -196,7 +199,7 @@ public class JDBC
 
 					// print(connection, "james"); 
 					if(command.equalsIgnoreCase("Print")){
-						System.out.println("Type the name of the star:");
+						System.out.println("\nType the name of the star:");
 						star = scan.nextLine();
 						print(connection, star);
 					}
@@ -215,7 +218,7 @@ public class JDBC
 						print_metadata(connection);
 					}
 					else if(command.equalsIgnoreCase("SQL Command")){
-						System.out.println("Type a valid SQL command:");
+						System.out.println("\nType a valid SQL command:");
 						sql = scan.nextLine();
 						sql_command(connection, sql);
 					}
