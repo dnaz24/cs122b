@@ -70,11 +70,31 @@ public class JDBC
 		
 	}
 
-	public static void insert_customer() {
+	public static void insert_customer(Connection connection, String Query) throws Exception {
+
+		ArrayList<String> parsedQuery = parseQuery(Query); 
+	
+		Statement select = connection.createStatement();
+		ResultSet result; 
+	
+		result = select.executeQuery("INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + parsedQuery.get(0) + ", \"" + parsedQuery.get(1) + "\", \"" + parsedQuery.get(2) + "\", \"" + parsedQuery.get(3) + "\", \"" + parsedQuery.get(4) + "\", \"" + parsedQuery.get(5) + "\", " + parsedQuery.get(6) + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \"" + parsedQuery.get(3) + "\")"); 
+	
+		select.close();
+		result.close(); 
 
 	}
 
-	public static void delete_customer() {
+	public static void delete_customer(Connection connection, String Query) throws Exception {
+
+		ArrayList<String> parsedQuery = parseQuery(Query); 
+		
+		Statement select = connection.createStatement();
+		ResultSet result; 
+		
+		result = select.executeQuery("DELETE FROM customers WHERE customers.id = " + parsedQuery.get(0)); 
+		
+		select.close();
+		result.close(); 
 
 	}
 
@@ -204,14 +224,26 @@ public class JDBC
 						print(connection, star);
 					}
 					else if(command.equalsIgnoreCase("Insert Star")){
-						// System.out.println("Type the name of the star:");
-						// star = scan.nextLine();
-						// insert_star(connection, star);
+						
+						System.out.println("Enter the information of the star: ");
+						star = scan.nextLine();
+						insert_star(connection, star);
+						
 					}
 					else if(command.equalsIgnoreCase("Insert Customer")){
 
+						String customer; 
+						System.out.println("Insert the information of the customer: "); 
+						customer = scan.nextLine(); 
+						insert_customer(connection, customer); 
+
 					}
 					else if(command.equalsIgnoreCase("Delete Customer")){
+						
+						String customer; 
+						System.out.println("Insert the information of the customer: ");
+						customer = scan.nextLine(); 
+						delete_customer(connection, customer); 
 
 					}
 					else if(command.equalsIgnoreCase("Print Metadata")){
