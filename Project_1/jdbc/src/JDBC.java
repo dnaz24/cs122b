@@ -36,14 +36,13 @@ public class JDBC
 			return; 
 		
 		while(result.next()){
-			
+
 			System.out.println("\nMovie ID: " + result.getInt(1));
 			System.out.println("Movie Title: " + result.getString(2));
 			System.out.println("Movie Year: " + result.getInt(3));
 			System.out.println("Movie Director: " + result.getString(4)); 
 			System.out.println("Banner URL: " + result.getString(5));
 			System.out.println("Trailer URL: " + result.getString(6));
-			System.out.println();
 			
 		}
 		
@@ -99,8 +98,46 @@ public class JDBC
 		
 	}
 
-	public static void sql_command() {
+	public static void sql_command(Connection connection, String query) {
+		try{
+			String split[] = query.split(" ");
+			Statement statement = connection.createStatement();
 
+			if(split[0].equalsIgnoreCase("select")){
+				ResultSet result; 
+				result = statement.executeQuery(query);
+				int columns = result.getMetaData().getColumnCount();
+				String attributes = "";
+
+				for (int i = 1; i <= columns; i ++){
+					attributes += (result.getMetaData().getColumnName(i)) + " ";
+				}
+				System.out.println("\nAttributes: " + attributes);
+
+				while(result.next()) {
+					String line = "";
+					for (int j = 1; j <= columns; j++){
+						line = line + result.getString(j) + " ";
+					}
+					System.out.println();
+					System.out.println(line);
+				}
+			}
+			else if(split[0].equalsIgnoreCase("update")){
+				System.out.println("Doesn't do anything yet. need to add more here");
+			}
+			else if(split[0].equalsIgnoreCase("insert")){
+				statement.executeUpdate(query);
+				System.out.println("\nSuccessfully inserted into database table");
+			}
+			else if(split[0].equalsIgnoreCase("delete")){
+				statement.executeUpdate(query);
+				System.out.println("\nSuccessfully deleted from database table");				
+			}
+		} 
+		catch(Exception e){
+			System.out.println("You have an error in your SQL syntax");
+		}
 	}
 
 	public static void exit_menu(Connection connection) throws Exception {
@@ -130,23 +167,27 @@ public class JDBC
 
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
 		boolean exit_program = false;
+		String db;
 		String un;
 		String pw;
 		String error;
 		String star;
+		String sql;
 		String command = "";
 
 		while(!exit_program){
 
 			Scanner scan = new Scanner(System.in);
-			System.out.println("\nEnter a user name:");
+			System.out.println("\nEnter a database:");
+			db = scan.nextLine();
+			System.out.println("Enter a user name:");
 			un = scan.nextLine();
 			System.out.println("Enter a user password:");
 			pw = scan.nextLine();
 
 			try{
 				// Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "calmdude6994");
-				Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb",un, pw);
+				Connection connection = DriverManager.getConnection(db, un, pw);
 				System.out.println("\nSuccessfully connected to your database");
 
 				while(true){
@@ -160,9 +201,9 @@ public class JDBC
 						print(connection, star);
 					}
 					else if(command.equalsIgnoreCase("Insert Star")){
-						// System.out.println("Type the.....");
+						// System.out.println("Type the name of the star:");
 						// star = scan.nextLine();
-						// insert_star(connection, ?);
+						// insert_star(connection, star);
 					}
 					else if(command.equalsIgnoreCase("Insert Customer")){
 
@@ -174,7 +215,9 @@ public class JDBC
 						print_metadata(connection);
 					}
 					else if(command.equalsIgnoreCase("SQL Command")){
-
+						System.out.println("Type a valid SQL command:");
+						sql = scan.nextLine();
+						sql_command(connection, sql);
 					}
 					else if(command.equalsIgnoreCase("Exit Menu")){
 						exit_menu(connection);
@@ -186,14 +229,14 @@ public class JDBC
 					}
 				}
 			}
-			catch(Exception e){
-				System.out.println(e);
+			catch(SQLException e){
 				error = e.getClass().getCanonicalName();
 				if(error.equals("java.sql.SQLException")){
-					System.out.println("\nIncorrect username or password");
+					System.out.println();
+					System.out.println(e.getMessage());
 				}
 				else if(error.equals("com.mysql.jdbc.exceptions.MySQLSyntaxErrorException")){
-					System.out.println("Database does not exist");
+					System.out.println("\nDatabase does not exist");
 				}
 				exit_program = exit_program();
 			}
