@@ -37,7 +37,7 @@ public class JDBC
 		
 		while(result.next()){
 			
-			System.out.println("Movie ID: " + result.getInt(1));
+			System.out.println("\nMovie ID: " + result.getInt(1));
 			System.out.println("Movie Title: " + result.getString(2));
 			System.out.println("Movie Year: " + result.getInt(3));
 			System.out.println("Movie Director: " + result.getString(4)); 
@@ -103,21 +103,100 @@ public class JDBC
 
 	}
 
-	public static void exit_menu() {
-
+	public static void exit_menu(Connection connection) throws Exception {
+		connection.close();
+		System.out.println("\nSuccessfully disconnected from your database");						
 	}
 
-	public static void exit_program() {
+	public static boolean exit_menu_and_program(Connection connection) throws Exception {
+		exit_menu(connection);
+		System.out.println("Successfully exit the program");							
+		return true;
+	}
 
+	public static boolean exit_program() {
+		Scanner scan = new Scanner(System.in);
+		String decision;
+		do{
+			System.out.println("Do you want to exit the program? [Y/N]");
+			decision = scan.nextLine();
+		}while((!decision.equalsIgnoreCase("Y")) && (!decision.equalsIgnoreCase("N")));
+		if(decision.equalsIgnoreCase("Y"))
+			System.out.println("\nSuccessfully exit the program");
+		return decision.equalsIgnoreCase("Y");
 	}
 	
 	public static void main(String[] arg) throws Exception {
 
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
+		boolean exit_program = false;
+		String un;
+		String pw;
+		String error;
+		String star;
+		String command = "";
 
-		Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "password");
-		
-		print_metadata(connection); 
+		while(!exit_program){
 
+			Scanner scan = new Scanner(System.in);
+			System.out.println("\nEnter a user name:");
+			un = scan.nextLine();
+			System.out.println("Enter a user password:");
+			pw = scan.nextLine();
+
+			try{
+				// Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "calmdude6994");
+				Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb",un, pw);
+				System.out.println("\nSuccessfully connected to your database");
+
+				while(true){
+					System.out.println("\nEnter a command [Print, Insert Star, Insert Customer, Delete Customer, Print Metadata, SQL command, Exit Menu, Exit Program]:");
+					command = scan.nextLine();
+
+					// print(connection, "james"); 
+					if(command.equalsIgnoreCase("Print")){
+						System.out.println("Type the name of the star:");
+						star = scan.nextLine();
+						print(connection, star);
+					}
+					else if(command.equalsIgnoreCase("Insert Star")){
+						// System.out.println("Type the.....");
+						// star = scan.nextLine();
+						// insert_star(connection, ?);
+					}
+					else if(command.equalsIgnoreCase("Insert Customer")){
+
+					}
+					else if(command.equalsIgnoreCase("Delete Customer")){
+
+					}
+					else if(command.equalsIgnoreCase("Print Metadata")){
+						print_metadata(connection);
+					}
+					else if(command.equalsIgnoreCase("SQL Command")){
+
+					}
+					else if(command.equalsIgnoreCase("Exit Menu")){
+						exit_menu(connection);
+						break;
+					}
+					else if(command.equalsIgnoreCase("Exit Program")){
+						exit_program = exit_menu_and_program(connection);
+						break;
+					}
+				}
+			}
+			catch(Exception e){
+				System.out.println(e);
+				error = e.getClass().getCanonicalName();
+				if(error.equals("java.sql.SQLException")){
+					System.out.println("\nIncorrect username or password");
+				}
+				else if(error.equals("com.mysql.jdbc.exceptions.MySQLSyntaxErrorException")){
+					System.out.println("Database does not exist");
+				}
+				exit_program = exit_program();
+			}
+		}
 	}
 }
