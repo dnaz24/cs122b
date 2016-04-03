@@ -95,7 +95,7 @@ public class JDBC
 		System.out.println("Please Enter the Password: ");
 		String password = scan.nextLine(); 
 	
-		String updateString = "INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + customerID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + creditCardID + "\', \'" + address + "\', \'" + email + "\', " + password + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \'" + creditCardID + "\')"; 
+		String updateString = "INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + customerID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + creditCardID + "\', \'" + address + "\', \'" + email + "\', \'" + password + "\' FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \'" + creditCardID + "\')"; 
 		
 		PreparedStatement updateStatement = connection.prepareStatement(updateString);
 		updateStatement.executeUpdate();
@@ -241,11 +241,12 @@ public class JDBC
 			un = scan.nextLine();
 			System.out.println("Enter a user password:");
 			pw = scan.nextLine();
+			
+			// Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "calmdude6994");
+			Connection connection = DriverManager.getConnection(db, un, pw);
+			System.out.println("\nSuccessfully connected to your database");
 
 			try{
-				// Connection connection = DriverManager.getConnection("jdbc:mysql:///moviedb", "root", "calmdude6994");
-				Connection connection = DriverManager.getConnection(db, un, pw);
-				System.out.println("\nSuccessfully connected to your database");
 
 				while(true){
 					System.out.println("\nEnter a command [Print, Insert Star, Insert Customer, Delete Customer, Print Metadata, SQL command, Exit Menu, Exit Program]:");
@@ -299,6 +300,7 @@ public class JDBC
 			}
 			catch(SQLException e){
 				error = e.getClass().getCanonicalName();
+				System.out.println(error);
 				if(error.equals("java.sql.SQLException")){
 					System.out.println();
 					System.out.println(e.getMessage());
