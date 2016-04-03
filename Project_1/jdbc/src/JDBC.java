@@ -6,34 +6,35 @@ import java.util.*;
 public class JDBC
 {
 	
-	private static ArrayList<String> parseQuery(String Query){
+	private static boolean isNumber(String string){
 		
-		ArrayList<String> parsedQuery = new ArrayList<String>(); 
+		for (int i = 0; i < string.length(); i++){
+			
+			if (!Character.isDigit(string.charAt(i)))
+				return false; 
+			
+		}
 		
-		Scanner in = new Scanner(Query);
-		in.useDelimiter(" "); 
-		
-		while(in.hasNext())
-			parsedQuery.add(in.next()); 
-		
-		in.close(); 
-		return parsedQuery; 
+		return true; 
 		
 	}
-
-	public static void print(Connection connection, String Query) throws Exception{
-
-		ArrayList<String> parsedQuery = parseQuery(Query); 
+	
+	public static void print(Connection connection, Scanner scan) throws Exception{
+		
+		System.out.println("Please Enter the First Name, Last Name, or ID: ");
+		String firstQuery = scan.nextLine(); 
+		System.out.println("Please Enter the Last Name (Click 'Enter' if Blank): ");
+		String secondQuery = scan.nextLine(); 
 		
 		Statement select = connection.createStatement();
 		ResultSet result; 
 		
-		if (parsedQuery.size() == 1)
-			result = select.executeQuery("SELECT m.id, m.title, m.year, m.director, IF (m.banner_url IS NULL, \"NULL\", m.banner_url) AS BannerURLExists, IF (m.trailer_url IS NULL, \"NULL\", m.trailer_url) AS TrailerURLExists FROM stars_in_movies sim, movies m, stars s WHERE s.id = sim.star_id AND m.id = sim.movie_id AND (s.first_name = \"" + parsedQuery.get(0) + "\" OR s.last_name = \"" + parsedQuery.get(0) + "\" OR s.id = \"" + parsedQuery.get(0) + "\")");
-		else if (parsedQuery.size() == 2)
-			result = select.executeQuery("SELECT m.id, m.title, m.year, m.director, IF (m.banner_url IS NULL, \"NULL\", m.banner_url) AS BannerURLExists, IF (m.trailer_url IS NULL, \"NULL\", m.trailer_url) AS TrailerURLExists FROM stars_in_movies sim, movies m, stars s WHERE s.id = sim.star_id AND m.id = sim.movie_id AND ((s.first_name = \"1"  + parsedQuery.get(0) + "\"AND s.last_name = \"" + parsedQuery.get(1) + "\") OR (s.first_name =  \"" + parsedQuery.get(0) + "\" OR s.last_name = \"" + parsedQuery.get(1) + "\"))");
+		if (isNumber(firstQuery))
+			result = select.executeQuery("SELECT m.id, m.title, m.year, m.director, IF (m.banner_url IS NULL, \'NULL\', m.banner_url) AS BannerURLExists, IF (m.trailer_url IS NULL, \'NULL\', m.trailer_url) AS TrailerURLExists FROM stars_in_movies sim, movies m, stars s WHERE s.id = sim.star_id AND m.id = sim.movie_id AND (s.id = " + firstQuery + ")");
+		else if (secondQuery.equals(""))
+			result = select.executeQuery("SELECT DISTINCT m.id, m.title, m.year, m.director, IF (m.banner_url IS NULL, \'NULL\', m.banner_url) AS BannerURLExists, IF (m.trailer_url IS NULL, \'NULL\', m.trailer_url) AS TrailerURLExists FROM stars_in_movies sim, movies m, stars s WHERE s.id = sim.star_id AND m.id = sim.movie_id AND (s.first_name = \'" + firstQuery + "\' OR s.last_name = \'" + firstQuery + "\')");
 		else
-			return; 
+			result = select.executeQuery("SELECT DISTINCT m.id, m.title, m.year, m.director, IF (m.banner_url IS NULL, \'NULL\', m.banner_url) AS BannerURLExists, IF (m.trailer_url IS NULL, \'NULL\', m.trailer_url) AS TrailerURLExists FROM stars_in_movies sim, movies m, stars s WHERE s.id = sim.star_id AND m.id = sim.movie_id AND ((s.first_name = \'"  + firstQuery + "\' AND s.last_name = \'" + secondQuery + "\') OR (s.first_name =  \'" + firstQuery + "\' OR s.last_name = \'" + secondQuery + "\'))");
 		
 		while(result.next()){
 
@@ -51,47 +52,68 @@ public class JDBC
 		
 	}
 
-	public static void insert_star(Connection connection, String Query) throws Exception {
-
-		ArrayList<String> parsedQuery = parseQuery(Query); 
+	public static void insert_star(Connection connection, Scanner scan) throws Exception {
 		
-		Statement select = connection.createStatement();
-		ResultSet result; 
+		System.out.println("Please Enter the Star ID: ");
+		String starID = scan.nextLine(); 
+		System.out.println("Please Enter the First Name (Click 'Enter' if Blank): ");
+		String firstName = scan.nextLine(); 
+		System.out.println("Please Enter the Last Name: ");
+		String lastName = scan.nextLine(); 
+		System.out.println("Please Enter the Date: ");
+		String date = scan.nextLine(); 
+		System.out.println("Please Enter the Photo URL: ");
+		String photoURL = scan.nextLine(); 
 		
-		if (parsedQuery.size() == 4)
-			result = select.executeQuery("INSERT INTO stars VALUES(" + parsedQuery.get(0) + ", \"" + "" + "\", \"" + parsedQuery.get(1) + "\", " + parsedQuery.get(2) + ", \"" + parsedQuery.get(3) + "\")"); 
-		else if (parsedQuery.size() == 5)
-			result = select.executeQuery("INSERT INTO stars VALUES(" + parsedQuery.get(0) + ", \"" + parsedQuery.get(1) + "\", \"" + parsedQuery.get(2) + "\", " + parsedQuery.get(3) + ", \"" + parsedQuery.get(4) + "\")");
+		String updateString; 
+		
+		if (firstName.equals(""))
+			updateString = "INSERT INTO stars VALUES(" + starID + ", \'" + "" + "\', \'" + lastName + "\', \'" + date + "\', \'" + photoURL + "\')"; 
 		else
-			return; 
+			updateString = "INSERT INTO stars VALUES(" + starID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + date + "\', \'" + photoURL + "\')";
 		
-		select.close(); 
-		result.close();
+		PreparedStatement updateStars = connection.prepareStatement(updateString);
+		updateStars.executeUpdate();
 		
 	}
 
-	public static void insert_customer(Connection connection, String Query) throws Exception {
-
-		ArrayList<String> parsedQuery = parseQuery(Query); 
+	public static void insert_customer(Connection connection, Scanner scan) throws Exception {
+		
+		System.out.println("Please Enter the Customer ID: ");
+		String customerID = scan.nextLine(); 
+		System.out.println("Please Enter the First Name: ");
+		String firstName = scan.nextLine(); 
+		System.out.println("Please Enter the Last Name: ");
+		String lastName = scan.nextLine(); 
+		System.out.println("Please Enter the Credit Card ID: ");
+		String creditCardID = scan.nextLine(); 
+		System.out.println("Please Enter the Address: ");
+		String address = scan.nextLine(); 
+		System.out.println("Please Enter the Email: ");
+		String email = scan.nextLine(); 
+		System.out.println("Please Enter the Password: ");
+		String password = scan.nextLine(); 
+		
 	
 		Statement select = connection.createStatement();
 		ResultSet result; 
 	
-		result = select.executeQuery("INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + parsedQuery.get(0) + ", \"" + parsedQuery.get(1) + "\", \"" + parsedQuery.get(2) + "\", \"" + parsedQuery.get(3) + "\", \"" + parsedQuery.get(4) + "\", \"" + parsedQuery.get(5) + "\", " + parsedQuery.get(6) + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \"" + parsedQuery.get(3) + "\")"); 
-	
+		result = select.executeQuery("INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + customerID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + creditCardID + "\', \'" + address + "\', \'" + email + "\', " + password + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \'" + creditCardID + "\')"); 
+		
 		select.close();
 		result.close(); 
 
 	}
 
-	public static void delete_customer(Connection connection, String Query) throws Exception {
-
-		ArrayList<String> parsedQuery = parseQuery(Query); 
+	public static void delete_customer(Connection connection, Scanner scan) throws Exception {
+		
+		System.out.println("Please enter the Customer ID: ");
+		String customerID = scan.nextLine(); 
 		
 		Statement select = connection.createStatement();
 		ResultSet result; 
 		
-		result = select.executeQuery("DELETE FROM customers WHERE customers.id = " + parsedQuery.get(0)); 
+		result = select.executeQuery("DELETE FROM customers WHERE customers.id = " + customerID); 
 		
 		select.close();
 		result.close(); 
@@ -144,7 +166,10 @@ public class JDBC
 				}
 			}
 			else if(split[0].equalsIgnoreCase("update")){
-				System.out.println("Doesn't do anything yet. need to add more here");
+				
+				PreparedStatement updateStars = connection.prepareStatement(query);
+				updateStars.executeUpdate();
+				
 			}
 			else if(split[0].equalsIgnoreCase("insert")){
 				statement.executeUpdate(query);
@@ -174,8 +199,7 @@ public class JDBC
 		return true;
 	}
 
-	public static boolean exit_program() {
-		Scanner scan = new Scanner(System.in);
+	public static boolean exit_program(Scanner scan) {
 		String decision;
 		do{
 			System.out.println("Do you want to exit the program? [Y/N]");
@@ -194,7 +218,6 @@ public class JDBC
 		String un;
 		String pw;
 		String error;
-		String star;
 		String sql;
 		String command = "";
 
@@ -217,37 +240,30 @@ public class JDBC
 					System.out.println("\nEnter a command [Print, Insert Star, Insert Customer, Delete Customer, Print Metadata, SQL command, Exit Menu, Exit Program]:");
 					command = scan.nextLine();
 
-					// print(connection, "james"); 
 					if(command.equalsIgnoreCase("Print")){
-						System.out.println("\nType the name of the star:");
-						star = scan.nextLine();
-						print(connection, star);
+			
+						print(connection, scan);
+						
 					}
 					else if(command.equalsIgnoreCase("Insert Star")){
 						
-						System.out.println("Enter the information of the star: ");
-						star = scan.nextLine();
-						insert_star(connection, star);
+						insert_star(connection, scan);
 						
 					}
 					else if(command.equalsIgnoreCase("Insert Customer")){
 
-						String customer; 
-						System.out.println("Insert the information of the customer: "); 
-						customer = scan.nextLine(); 
-						insert_customer(connection, customer); 
+						insert_customer(connection, scan); 
 
 					}
 					else if(command.equalsIgnoreCase("Delete Customer")){
 						
-						String customer; 
-						System.out.println("Insert the information of the customer: ");
-						customer = scan.nextLine(); 
-						delete_customer(connection, customer); 
+						delete_customer(connection, scan); 
 
 					}
 					else if(command.equalsIgnoreCase("Print Metadata")){
+						
 						print_metadata(connection);
+						
 					}
 					else if(command.equalsIgnoreCase("SQL Command")){
 						System.out.println("\nType a valid SQL command:");
@@ -262,6 +278,12 @@ public class JDBC
 						exit_program = exit_menu_and_program(connection);
 						break;
 					}
+					
+					else {
+						
+						System.out.println("Invalid Command. Please try again."); 
+						
+					}
 				}
 			}
 			catch(SQLException e){
@@ -273,7 +295,7 @@ public class JDBC
 				else if(error.equals("com.mysql.jdbc.exceptions.MySQLSyntaxErrorException")){
 					System.out.println("\nDatabase does not exist");
 				}
-				exit_program = exit_program();
+				exit_program = exit_program(scan);
 			}
 		}
 	}
