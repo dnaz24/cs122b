@@ -72,8 +72,9 @@ public class JDBC
 		else
 			updateString = "INSERT INTO stars VALUES(" + starID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + date + "\', \'" + photoURL + "\')";
 		
-		PreparedStatement updateStars = connection.prepareStatement(updateString);
-		updateStars.executeUpdate();
+		PreparedStatement updateStatement = connection.prepareStatement(updateString);
+		updateStatement.executeUpdate();
+		updateStatement.close(); 
 		
 	}
 
@@ -93,15 +94,12 @@ public class JDBC
 		String email = scan.nextLine(); 
 		System.out.println("Please Enter the Password: ");
 		String password = scan.nextLine(); 
-		
 	
-		Statement select = connection.createStatement();
-		ResultSet result; 
-	
-		result = select.executeQuery("INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + customerID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + creditCardID + "\', \'" + address + "\', \'" + email + "\', " + password + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \'" + creditCardID + "\')"); 
+		String updateString = "INSERT INTO customers(id, first_name, last_name, cc_id, address, email, password) SELECT " + customerID + ", \'" + firstName + "\', \'" + lastName + "\', \'" + creditCardID + "\', \'" + address + "\', \'" + email + "\', " + password + " FROM dual WHERE EXISTS (SELECT cc.id FROM creditcards cc, customers c WHERE cc.id = c.cc_id AND cc.id = \'" + creditCardID + "\')"; 
 		
-		select.close();
-		result.close(); 
+		PreparedStatement updateStatement = connection.prepareStatement(updateString);
+		updateStatement.executeUpdate();
+		updateStatement.close(); 
 
 	}
 
@@ -110,13 +108,11 @@ public class JDBC
 		System.out.println("Please enter the Customer ID: ");
 		String customerID = scan.nextLine(); 
 		
-		Statement select = connection.createStatement();
-		ResultSet result; 
+		String updateString = "DELETE FROM customers WHERE customers.id = " + customerID; 
 		
-		result = select.executeQuery("DELETE FROM customers WHERE customers.id = " + customerID); 
-		
-		select.close();
-		result.close(); 
+		PreparedStatement updateStatement = connection.prepareStatement(updateString);
+		updateStatement.executeUpdate();
+		updateStatement.close(); 
 
 	}
 
@@ -143,9 +139,9 @@ public class JDBC
 	public static void sql_command(Connection connection, String query) {
 		try{
 			String split[] = query.split(" ");
-			Statement statement = connection.createStatement();
 
 			if(split[0].equalsIgnoreCase("select")){
+				Statement statement = connection.createStatement();
 				ResultSet result; 
 				result = statement.executeQuery(query);
 				int columns = result.getMetaData().getColumnCount();
@@ -164,23 +160,38 @@ public class JDBC
 					System.out.println();
 					System.out.println(line);
 				}
+				
+				result.close(); 
+				statement.close(); 
+				
 			}
 			else if(split[0].equalsIgnoreCase("update")){
 				
-				PreparedStatement updateStars = connection.prepareStatement(query);
-				updateStars.executeUpdate();
+				PreparedStatement updateStatement = connection.prepareStatement(query);
+				updateStatement.executeUpdate();
+				updateStatement.close(); 
 				
 			}
 			else if(split[0].equalsIgnoreCase("insert")){
-				statement.executeUpdate(query);
+				
+				PreparedStatement updateStatement = connection.prepareStatement(query);
+				updateStatement.executeUpdate();
+				updateStatement.close(); 
 				System.out.println("\nSuccessfully inserted into database table");
+				
 			}
 			else if(split[0].equalsIgnoreCase("delete")){
-				statement.executeUpdate(query);
-				System.out.println("\nSuccessfully deleted from database table");				
+				
+				PreparedStatement updateStatement = connection.prepareStatement(query);
+				updateStatement.executeUpdate();
+				updateStatement.close(); 
+				System.out.println("\nSuccessfully deleted from database table");	
+				
 			}
 			else{
+				
 				System.out.println("You have an error in your SQL syntax");
+				
 			}
 		} 
 		catch(Exception e){
